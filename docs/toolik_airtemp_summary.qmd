@@ -1,6 +1,8 @@
 ---
 title: "Toolik Station Air Temperature"
 format: html
+editor_options: 
+  chunk_output_type: console
 ---
 
 ```{r setup, include=FALSE}
@@ -63,7 +65,8 @@ names(toolik_weather)
 Let's make a jitterplot of temperatures by month.
 
 ```{r}
-toolik_temp_plot <- ggplot(data = toolik_weather, aes(x = as.factor(month), y = daily_air_temp_mean_c)) +
+toolik_temp_plot <- ggplot(data = toolik_weather, aes(x = as.factor(month), 
+                                                      y = daily_air_temp_mean_c)) +
   geom_jitter(aes(color = daily_air_temp_mean_c), show.legend = FALSE) +
   scale_color_gradient(low = "blue", high = "orange") +
   theme_minimal() +
@@ -83,3 +86,39 @@ ggsave(here::here("figs", "toolik_temp_plot.png"), height = 6, width = 7)
 Now try changing something about the ggplot code, and re-run your `ggsave()` line above. Does your saved figure change? Great!
 
 ## End Example 1
+
+```{r}
+toolik_chlorophyll <- read_csv(here::here("data","data-raw", "toolik_chlorophyll.csv"))
+```
+
+```{r}
+skimr::skim(toolik_chlorophyll)
+
+dim(toolik_chlorophyll)
+names(toolik_chlorophyll)
+```
+
+```{r}
+toolik_chlorophyll <- toolik_chlorophyll %>% clean_names() 
+names(toolik_chlorophyll)
+```
+
+```{r}
+toolik_chlorophyll$active_chl_a_ug_l <-
+  na_if(toolik_chlorophyll$active_chl_a_ug_l, ".")
+
+toolik_chlorophyll$active_chl_a_ug_l <- as.numeric(toolik_chlorophyll$active_chl_a_ug_l)
+```
+
+```{r}
+ggplot(data = toolik_chlorophyll,
+       aes(x = depth, y = active_chl_a_ug_l))+
+  geom_point(aes(col = active_chl_a_ug_l),
+                 show.legend = FALSE)+
+   scale_color_gradient(low = "orange", high = "red")+
+  theme_minimal()+
+  labs(title = "Toolik Cholorphyll Concentrations",
+       x = "Lake Depth (meters)",
+       y = "Active cholorphyll concentration (micrograms per liter)")
+```
+
